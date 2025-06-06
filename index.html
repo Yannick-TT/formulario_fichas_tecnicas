@@ -248,7 +248,7 @@
 
   async function enviarDatosAFuncionPowerAutomate(datosFormulario) {
       // 🔁 Reemplaza esta URL por la de tu flujo de Power Automate
-      const flowUrl = "https://prod-xx.westeurope.logic.azure.com:443/workflows/XXXXXXXXXXXXXX/triggers/manual/paths/invoke?...";
+      const flowUrl = "https://defaultc06103d4d788422791a7d4293df60d.e4.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ca43b2fd5c84c28bdeb14e5b7ec9ba3/triggers/manual/paths/invoke/?api-version=1&tenantId=tId&environmentName=Default-c06103d4-d788-4227-91a7-d4293df60de4";
 
       try {
           const response = await fetch(flowUrl, {

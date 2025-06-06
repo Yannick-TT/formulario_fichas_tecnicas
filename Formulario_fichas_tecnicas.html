@@ -1,0 +1,357 @@
+<!-- Estilos Bootstrap (cargados desde CDN) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    /* Estilos personalizados del formulario */
+    .form-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        margin-top: 20px; /* Ajuste para SharePoint */
+    }
+    .section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+    }
+    .section-title {
+        margin-bottom: 20px;
+        color: #0d6efd;
+        border-bottom: 2px solid #0d6efd;
+        padding-bottom: 5px;
+    }
+    .btn-add {
+        margin: 10px 0;
+    }
+    /* Estilos para el cuadro de mensaje */
+    #messageBox {
+        display: none; /* Oculto por defecto */
+        text-align: center;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container">
+    <div class="form-container">
+        <h1 class="text-center mb-4">Formulario de Ficha de Producto</h1>
+
+        <!-- Cuadro de mensaje para alertas de éxito/error -->
+        <div id="messageBox" class="alert d-none" role="alert"></div>
+        
+        <form id="productForm">
+            <!-- Información Básica -->
+            <div class="section">
+                <h3 class="section-title">Información Básica</h3>
+                <div class="mb-3">
+                    <label for="tituloFicha" class="form-label">Título de la ficha</label>
+                    <input type="text" class="form-control" id="tituloFicha" required>
+                </div>
+                <div class="mb-3">
+                    <label for="nombreProducto" class="form-label">Nombre del producto</label>
+                    <input type="text" class="form-control" id="nombreProducto" required>
+                </div>
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción del producto</label>
+                    <textarea class="form-control" id="descripcion" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="propiedades" class="form-label">Propiedades</label>
+                    <textarea class="form-control" id="propiedades" rows="2"></textarea>
+                </div>
+            </div>
+
+            <!-- Tabla de Información Técnica -->
+            <div class="section">
+                <h3 class="section-title">Información Técnica</h3>
+                <table class="table table-bordered" id="tablaTecnica">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Propiedades</th>
+                            <th>Valor</th>
+                            <th>Unidad</th>
+                            <th>Método</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaTecnica"></tbody>
+                </table>
+                <button type="button" class="btn btn-primary btn-add" onclick="agregarFilaTecnica()">Añadir línea</button>
+            </div>
+
+            <!-- Certificaciones -->
+            <div class="section">
+                <h3 class="section-title">Certificaciones</h3>
+                <div class="mb-3">
+                    <label for="certificaciones" class="form-label">Certificaciones (generales)</label>
+                    <textarea class="form-control" id="certificaciones" rows="2"></textarea>
+                </div>
+                
+                <table class="table table-bordered" id="tablaCertificaciones">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Ensayos Marcado CE</th>
+                            <th>Prestaciones</th>
+                            <th>Ensayo de la norma armonizada</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaCertificaciones"></tbody>
+                </table>
+                <button type="button" class="btn btn-primary btn-add" onclick="agregarFilaCertificaciones()">Añadir línea</button>
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="section">
+                <h3 class="section-title">Información Adicional</h3>
+                <div class="mb-3">
+                    <label for="preparacionSoporte" class="form-label">Preparación del soporte</label>
+                    <textarea class="form-control" id="preparacionSoporte" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="aplicacion" class="form-label">Aplicación</label>
+                    <textarea class="form-control" id="aplicacion" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="precauciones" class="form-label">Precauciones especiales</label>
+                    <textarea class="form-control" id="precauciones" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="presentacion" class="form-label">Presentación</label>
+                    <textarea class="form-control" id="presentacion" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="limpieza" class="form-label">Limpieza de herramientas</label>
+                    <textarea class="form-control" id="limpieza" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="almacenamiento" class="form-label">Condiciones de almacenamiento</label>
+                    <textarea class="form-control" id="almacenamiento" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="fechaActualizacion" class="form-label">Fecha de actualización</label>
+                    <input type="date" class="form-control" id="fechaActualizacion">
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <button type="button" class="btn btn-secondary me-md-2" onclick="limpiarFormulario()">Limpiar</button>
+                <button type="submit" class="btn btn-primary">Enviar a SharePoint</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Variables para contadores de filas de tablas
+    let contadorFilasTecnica = 0;
+    let contadorFilasCertificaciones = 0;
+
+    // Función para mostrar mensajes al usuario (reemplaza alert/confirm)
+    function showMessageBox(message, type = 'info') {
+        const msgBox = document.getElementById('messageBox');
+        msgBox.textContent = message;
+        msgBox.className = `alert mt-3 ${type === 'success' ? 'alert-success' : type === 'error' ? 'alert-danger' : 'alert-info'}`;
+        msgBox.classList.remove('d-none');
+        setTimeout(() => {
+            msgBox.classList.add('d-none');
+        }, 8000); // Ocultar después de 8 segundos
+    }
+
+    // Funciones para agregar y eliminar filas en las tablas dinámicas
+    function agregarFilaTecnica() {
+        const tbody = document.getElementById('cuerpoTablaTecnica');
+        const nuevaFila = document.createElement('tr');
+        const idFila = `filaTecnica_${contadorFilasTecnica}`;
+        nuevaFila.id = idFila;
+        nuevaFila.innerHTML = `
+            <td><input type="text" class="form-control" name="propiedad_${contadorFilasTecnica}"></td>
+            <td><input type="text" class="form-control" name="valor_${contadorFilasTecnica}"></td>
+            <td><input type="text" class="form-control" name="unidad_${contadorFilasTecnica}"></td>
+            <td><input type="text" class="form-control" name="metodo_${contadorFilasTecnica}"></td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila('${idFila}')">Eliminar</button></td>`;
+        tbody.appendChild(nuevaFila);
+        contadorFilasTecnica++;
+    }
+
+    function agregarFilaCertificaciones() {
+        const tbody = document.getElementById('cuerpoTablaCertificaciones');
+        const nuevaFila = document.createElement('tr');
+        const idFila = `filaCertificacion_${contadorFilasCertificaciones}`;
+        nuevaFila.id = idFila;
+        nuevaFila.innerHTML = `
+            <td><input type="text" class="form-control" name="ensayo_ce_${contadorFilasCertificaciones}"></td>
+            <td><input type="text" class="form-control" name="prestaciones_${contadorFilasCertificaciones}"></td>
+            <td><input type="text" class="form-control" name="norma_armonizada_${contadorFilasCertificaciones}"></td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila('${idFila}')">Eliminar</button></td>`;
+        tbody.appendChild(nuevaFila);
+        contadorFilasCertificaciones++;
+    }
+
+    function eliminarFila(idFila) {
+        const fila = document.getElementById(idFila);
+        if (fila) fila.remove();
+    }
+
+    // Función para limpiar el formulario
+    function limpiarFormulario() {
+        document.getElementById('productForm').reset();
+        document.getElementById('cuerpoTablaTecnica').innerHTML = '';
+        document.getElementById('cuerpoTablaCertificaciones').innerHTML = '';
+        contadorFilasTecnica = 0;
+        contadorFilasCertificaciones = 0;
+        showMessageBox('Formulario limpiado.', 'info');
+    }
+
+    // Función para recopilar todos los datos del formulario
+    function recopilarDatos() {
+        const datos = {
+            tituloFicha: document.getElementById('tituloFicha').value,
+            nombreProducto: document.getElementById('nombreProducto').value,
+            descripcion: document.getElementById('descripcion').value,
+            propiedades: document.getElementById('propiedades').value,
+            informacionTecnica: [], // Para la tabla de información técnica
+            certificaciones: document.getElementById('certificaciones').value, // Certificaciones generales
+            tablaCertificaciones: [], // Para la tabla de certificaciones
+            preparacionSoporte: document.getElementById('preparacionSoporte').value,
+            aplicacion: document.getElementById('aplicacion').value,
+            precauciones: document.getElementById('precauciones').value,
+            presentacion: document.getElementById('presentacion').value,
+            limpieza: document.getElementById('limpieza').value,
+            almacenamiento: document.getElementById('almacenamiento').value,
+            fechaActualizacion: document.getElementById('fechaActualizacion').value
+        };
+
+        // Recopilar datos de la tabla de Información Técnica
+        const filasTecnica = document.querySelectorAll('#cuerpoTablaTecnica tr');
+        filasTecnica.forEach(fila => {
+            const celdas = fila.getElementsByTagName('input');
+            if (celdas.length >= 4) {
+                datos.informacionTecnica.push({
+                    propiedad: celdas[0].value,
+                    valor: celdas[1].value,
+                    unidad: celdas[2].value,
+                    metodo: celdas[3].value
+                });
+            }
+        });
+
+        // Recopilar datos de la tabla de Certificaciones
+        const filasCertificaciones = document.querySelectorAll('#cuerpoTablaCertificaciones tr');
+        filasCertificaciones.forEach(fila => {
+            const celdas = fila.getElementsByTagName('input');
+            if (celdas.length >= 3) {
+                datos.tablaCertificaciones.push({
+                    ensayoCE: celdas[0].value,
+                    prestaciones: celdas[1].value,
+                    normaArmonizada: celdas[2].value
+                });
+            }
+        });
+
+        return datos;
+    }
+
+    // Función para obtener variables de contexto de SharePoint
+    function getSharePointContext() {
+        if (typeof _spPageContextInfo !== 'undefined') {
+            return {
+                webAbsoluteUrl: _spPageContextInfo.webAbsoluteUrl,
+                requestDigest: document.getElementById('__REQUESTDIGEST').value
+            };
+        } else {
+            console.warn("SharePoint context not found. Using dummy values for testing.");
+            // **IMPORTANTE: PARA PRUEBAS FUERA DE SHAREPOINT, REEMPLAZA CON TU SITIO REAL**
+            return {
+                webAbsoluteUrl: "https://yourtenant.sharepoint.com/sites/YourSite", 
+                requestDigest: "DUMMY_REQUEST_DIGEST_FOR_TESTING" 
+            };
+        }
+    }
+
+    // Función principal para enviar datos a la lista de SharePoint
+    async function enviarDatosASharePoint(datosFormulario) {
+        const spContext = getSharePointContext();
+        const siteUrl = spContext.webAbsoluteUrl;
+        const listName = "Fichas de Producto"; // **REEMPLAZA con el nombre exacto de tu lista de SharePoint**
+        const requestUri = `${siteUrl}/_api/web/lists/getbytitle('${listName}')/items`;
+
+        // **IMPORTANTE**: Reemplaza 'SP.Data.Fichas_x0020_de_x0020_ProductoListItem' con el nombre de entidad de tu lista.
+        // Puedes obtenerlo haciendo una llamada GET a tu lista:
+        // GET https://yourtenant.sharepoint.com/sites/YourSite/_api/web/lists/GetByTitle('Fichas de Producto')?$select=ListItemEntityTypeFullName
+        const listItemEntityTypeFullName = "SP.Data.Fichas_x0020_de_x0020_ProductoListItem"; // **REEMPLAZA con el valor real**
+
+        // Mapear los datos del formulario a los nombres internos de las columnas de SharePoint
+        // **ADVERTENCIA**: DEBES REEMPLAZAR 'InternalColumnName_...' con los NOMBRES INTERNOS REALES de tus columnas en SharePoint.
+        // Los espacios en los nombres de columna se suelen representar como '_x0020_'.
+        // 'Title' es el nombre interno de la columna "Título" por defecto.
+        const itemPayload = {
+            "__metadata": { "type": listItemEntityTypeFullName },
+            "Title": datosFormulario.tituloFicha, 
+            "NombreProducto_InternalName": datosFormulario.nombreProducto, // EJEMPLO: Reemplaza
+            "DescripcionProducto_InternalName": datosFormulario.descripcion, // EJEMPLO: Reemplaza
+            "Propiedades_InternalName": datosFormulario.propiedades, // EJEMPLO: Reemplaza
+            "InfoTecnicaJSON_InternalName": JSON.stringify(datosFormulario.informacionTecnica), // Se guarda como una cadena JSON
+            "Certificaciones_InternalName": datosFormulario.certificaciones, // EJEMPLO: Reemplaza (para las generales)
+            "TablaCertificacionesJSON_InternalName": JSON.stringify(datosFormulario.tablaCertificaciones), // Se guarda como una cadena JSON
+            "PreparacionSoporte_InternalName": datosFormulario.preparacionSoporte, // EJEMPLO: Reemplaza
+            "Aplicacion_InternalName": datosFormulario.aplicacion, // EJEMPLO: Reemplaza
+            "PrecaucionesEspeciales_InternalName": datosFormulario.precauciones, // EJEMPLO: Reemplaza
+            "Presentacion_InternalName": datosFormulario.presentacion, // EJEMPLO: Reemplaza
+            "LimpiezaHerramientas_InternalName": datosFormulario.limpieza, // EJEMPLO: Reemplaza
+            "CondicionesAlmacenamiento_InternalName": datosFormulario.almacenamiento, // EJEMPLO: Reemplaza
+            "FechaActualizacion_InternalName": datosFormulario.fechaActualizacion // EJEMPLO: Reemplaza. Asegúrate del formato de fecha (YYYY-MM-DD)
+        };
+
+        try {
+            const response = await fetch(requestUri, {
+                method: 'POST',
+                headers: {
+                    "Accept": "application/json;odata=verbose", 
+                    "Content-Type": "application/json;odata=verbose", 
+                    "X-RequestDigest": spContext.requestDigest // Token de seguridad CSRF
+                },
+                body: JSON.stringify(itemPayload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Error al enviar a SharePoint: ${response.status} - ${errorData.error.message.value || JSON.stringify(errorData)}`);
+            }
+
+            const data = await response.json();
+            console.log("Item creado en SharePoint:", data);
+            showMessageBox("¡Ficha de producto enviada con éxito a SharePoint!", 'success');
+            // Limpiar el formulario después de enviar exitosamente
+            limpiarFormulario();
+
+        } catch (error) {
+            console.error("Error en la solicitud a SharePoint:", error);
+            showMessageBox(`Error al enviar la ficha: ${error.message}`, 'error');
+        }
+    }
+
+    // Event listener para el envío del formulario
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Evita el envío tradicional del formulario
+        const datos = recopilarDatos();
+        console.log('Datos del formulario a enviar a SharePoint:', datos);
+        
+        // Llamada a la función que envía los datos a SharePoint
+        enviarDatosASharePoint(datos);
+    });
+
+    // Se asegura de que se agreguen las filas iniciales al cargar el documento
+    document.addEventListener('DOMContentLoaded', function() {
+        // Asegúrate de que las filas se añaden solo si no hay ninguna.
+        // Esto previene que se añadan filas duplicadas si el Web Part se refresca.
+        if (document.getElementById('cuerpoTablaTecnica').children.length === 0) {
+            agregarFilaTecnica();
+        }
+        if (document.getElementById('cuerpoTablaCertificaciones').children.length === 0) {
+            agregarFilaCertificaciones();
+        }
+    });
+</script>
